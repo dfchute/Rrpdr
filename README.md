@@ -13,6 +13,9 @@ order(Abbvie_below25_RPDR_1_10_17$Seq_Date_Time, na.last = TRUE, decreasing = TR
 # changing the class of encounter dates
 Abbvie_below25_RPDR_1_10_17$Seq_Date_Time <- as.Date(Abbvie_below25_RPDR_1_10_17$Seq_Date_Time, "%m/%d/%Y")
 
+# sending a data frame to working directory as a csv file
+write.csv(egfr_below_25_recent, file = "eGFR_Below_25.csv")
+
 # for creatinine trends and DAA treatment study CKD treated
 library(sqldf)
 library(plyr)
