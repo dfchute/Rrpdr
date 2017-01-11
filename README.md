@@ -1,9 +1,17 @@
+//  R code for editing patient data from RPDR
+
+//  Created by Donald Chute on 1/11/17.
+//  Copyright © 2016 Donald Chute. All rights reserved.
+
 # Rrpdr
 # selecting the first unique EMPI
 sorted_egfr_below_25 <- essentials_egfr[!duplicated(essentials_egfr$EMPI),]
 
 # sorting the df by the time of encounter in decreasing order
 order(Abbvie_below25_RPDR_1_10_17$Seq_Date_Time, na.last = TRUE, decreasing = TRUE)
+
+# changing the class of encounter dates
+Abbvie_below25_RPDR_1_10_17$Seq_Date_Time <- as.Date(Abbvie_below25_RPDR_1_10_17$Seq_Date_Time, "%m/%d/%Y")
 
 # for creatinine trends and DAA treatment study CKD treated
 library(sqldf)
