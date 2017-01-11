@@ -1,7 +1,7 @@
 //  R code for editing patient data from RPDR
 
 //  Created by Donald Chute on 1/11/17.
-//  Copyright © 2016 Donald Chute. All rights reserved.
+//  Copyright © 2017 Donald Chute. All rights reserved.
 
 # Rrpdr
 # selecting the first unique EMPI
