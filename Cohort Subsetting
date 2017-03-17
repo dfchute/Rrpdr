@@ -1,0 +1,35 @@
+### Subset based off of search term ###
+### word search for HIV or AIDs in dia ###
+hiv_list <- c("HIV","AIDS", "Acquired Immunodeficiency Syndrome", "Human Immunodeficiency Virus")
+hiv <- subset(dia, grepl(paste(hiv_list, collapse = "|"), dia$Diagnosis_Name, ignore.case = T))
+non_hiv_list <- c("Nonspecific serologic evidence of human immunodeficiency virus [HIV]", "Inconclusive laboratory evidence of human immunodeficiency virus [hiv]",
+"Nonspecific serologic evidence of human immunodeficiency virus [HIV]", "Hives-Oncall")
+
+### eliminator not in function ###
+"%ni%" <- function(x,y)!(x%in%y)
+hiv <- subset(hiv, hiv$Diagnosis_Name%ni%non_hiv_list)
+
+### unique EMPIs ###
+length(unique(hiv$EMPI))  #1189
+
+### bring in all other dias for hiv patients ###
+hiv_pat <- subset(dia, dia$EMPI%in%hiv$EMPI)
+length(unique(hiv_pat$EMPI)) #1189
+
+### To exclude ###
+exclusions_list <- c("HCV", "viral hepatitis c", "HBV", "viral hepatitis b", "AFLD", "Alcoholic Fatty Liver Disease", "Alcoholic Cirrhosis", "etoh cirrhosis", "alcoholism")
+exclude_pat <- subset(hiv_pat, grepl(paste(exclusions_list, collapse = "|"), hiv_pat$Diagnosis_Name, ignore.case = T))
+length(unique(exclude_pat$EMPI)) #531
+cohort <- subset(hiv_pat, hiv_pat$EMPI%ni%exclude_pat$EMPI)
+length(unique(cohort$EMPI)) #658
+nafld_code_confirmed <- subset(cohort, cohort$Code == "K76.0" | cohort$Code == "571.8")
+length(unique(nafld_confirm$EMPI))
+
+### without nafld confirmed codes cohort ###
+no_code <- subset(cohort, cohort$EMPI%ni%nafld_code_confirmed$EMPI)
+length(unique(no_code$EMPI)) #120 so matches with 538 + 120 = 658 of cohortwrite.csv(nafld_code_confirmed, "HIV_NAFLD_coded.csv")
+
+### making final cohort with dems for MDs ###
+cohort_dems <- subset(Dems, Dems$EMPI%in%cohort$EMPI) #658
+write.csv(cohort_dems, "HIV_NAFLD_Cohort_with_Demographics.csv")
+write.csv(no_code, "HIV_NAFLD_nocode.csv")
