@@ -1,0 +1,108 @@
+### CARE trial "is there a benefit of pravastatin in cardiac outcomes when compared to placebo"###
+### Read in the data ###
+# Session_1 <- read.csv(my activities hard drive) #
+### Class example used rct ###
+# rct <- read.table(dataset location) #
+ncol(Session_1)
+nrow(Session_1)
+table(Session_1$group)
+names(Session_1)
+mean(Session_1$age)
+sd(Session_1$age)
+summary(Session_1$age)
+prop.table(table(Session_1$sex))
+mean(Session_1[Session_1$group=="Pravastatin",]$age)
+sd(Session_1[Session_1$group=="Pravastatin",]$age)
+mean(Session_1[Session_1$group=="Placebo",]$age)
+sd(Session_1[Session_1$group=="Placebo",]$age)
+pravastatin <- Session_1[Session_1$group=="Pravastatin",]
+table(Session_1$group, Session_1$sex)
+### gives row proportion, use ,2 for the column propotion ###
+prop.table(table(Session_1$group, Session_1$sex),1)
+boxplot(Session_1$age)
+boxplot(Session_1$age~Session_1$group)
+hist(Session_1$age)
+boxplot(Session_1$age~Session_1$group)
+prop.table(table(Session_1$country))
+prop.table(table(Session_1$group,Session_1$race))
+### break at summary statistics and quality of the data check ###
+
+### group comparisions section below ###
+table(Session_1$group, Session_1$deathorMI)
+prop.table(table(Session_1$group, Session_1$deathorMI),1)
+# the probabliliity of the observed result or something more extreme under the null hypothesis #
+# always report an estimate, a p value, and a confidence interval #
+# a 0.05 p value assumes that a type one error will occur #
+# State null, state type of data for explanation of outcome, determine appropriate stat test #
+# State summary stats, calculate p value, decide whether to accept or reject null hypothesis, write it up #
+
+### Chi squared test ###
+# observed table compared to a table we would expect #
+# reject null if p value is lower than 0.05 #
+chisq.test(Session_1$group, Session_1$deathorMI, correct = F)
+# this provides chi square and p value #
+# correct = F is a continuity function. Stata does correct = F, R does not automatically without saying this. #
+
+### Confidence intervals ###
+# estimate of difference, range of plausible values, confidence interval based on sample size and sd #
+# commonly used is the 95% confidence interval, related to p value of 0.05 #
+# for more on math of CIs see the powerpoint for technicals #
+
+### Lecture 2 3/9/17 ###
+Practice_dataset <- read_csv("/Volumes/Activities/Applied Biostats/MGH Biostats/Practice_dataset.csv")
+# Investigating observational data #
+names(Practice_dataset)
+# sdmt is a measure of cognitive funcion #
+# is there a difference between males and females in this outcome variable sdmt #
+table(Practice_dataset$male)
+prop.table(table(Practice_dataset$male)) # 76% male and 23% female
+mean(Practice_dataset$sdmt)
+sd(Practice_dataset$sdmt)
+hist(Practice_dataset$sdmt)
+boxplot(Practice_dataset$sdmt) #plot data to identify problems at outset
+boxplot(Practice_dataset$sdmt~Practice_dataset$male)
+plot(x=Practice_dataset$age, y=Practice_dataset$sdmt, ylab="SDMT", xlab = "Age (years)")
+
+# Relationship between gender and SDMT #
+mean(Practice_dataset[Practice_dataset$male==1,]$sdmt) #47 is the mean sdmt score for males
+mean(Practice_dataset[Practice_dataset$male==0,]$sdmt)
+sd(Practice_dataset[Practice_dataset$male==0,]$sdmt)
+
+# Two sample t test #
+# Null is that the difference between the two groups is 0 #
+t.test(Practice_dataset$sdmt~Practice_dataset$male) #default is unequal variance, second var is grouping variable
+t.test(Practice_dataset$sdmt~Practice_dataset$male, var.equal = T) #for equal variance
+# This gives likilihood of the two means being equal given the sample 
+# conclusion is that our male ms patients are not statistically different from our female ms pts based on sdmt
+# in that 0 is one of the plausible values
+
+# What is wrong with this command? 
+t.test(Practice_dataset$sdmt, Practice_dataset$male) # is mean sdmt different from mean of 0 or 1 code for female or male
+
+### Linear Regression ###
+# allows a continuous outcome with a set of predictors
+# beta 1 represents the difference in the means mean in males is beta 1 plus beta 0 for females it is beta 0
+model <- lm(sdmt~male, data = Practice_dataset)
+summary(model) # intercept is beta 0 (y-intercept), male is beta 1 (slope)
+# since beta 1 has a negative value, then the females look to have a higher sdmt score
+# Pr(>|t|) is our p value
+# estimated beta 1 is -2.2 and p value is 0.23, therfore fail to reject the null
+# is beta 1 equal to 0, intercept is mean of female sdmt scores
+# confidence interval
+confint(model)
+
+### Try on own ###
+# Is there a difference in sdmt scores when comparing ages
+age_model <- lm(sdmt~age, data = Practice_dataset)
+summary(age_model)
+
+confint(age_model)
+
+# shows that for one unit increase in age the sdmt score goes down by ~ 0.27 and it is stat sig p of 0.000273
+
+### add more coefficients ###
+multreg_model <- lm(sdmt~male+age, data = Practice_dataset)
+# two parallel lines coefficients represent effects of gender or age holding the other variable constant
+# diff btw males and females holding age constant or adjusting for age
+confint(multreg_model)
+# always assuming effects are linear #
