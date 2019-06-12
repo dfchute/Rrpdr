@@ -1,0 +1,18 @@
+#### Finding autopsy patients and those that had PET scans during AKI ####
+path <- read.table("mes98_06051910160667594_Pat.txt", sep = '|', fill = TRUE, quote = "", header = T)
+rad <- read.table("mes98_06051910160667594_Rdt.txt", sep = '|', fill = TRUE, quote = "", header = T)
+
+autopsies <- subset(path, path$Report_Description == "Autopsy")
+
+
+#PET Scans
+pet_list <- c("pet")
+
+pets <- subset(rad, grepl(paste(pet_list, collapse = "|"), rad$Test_Description, ignore.case = T))
+
+xpets <- merge(x = pets, y = starts, by.x = 1, by.y = 1)
+xpets$Date <- as.Date(xpets$Date, format = "%m/%d/%Y")
+xpets$start_date <- as.Date(xpets$start_date, format = "%m/%d/%Y")
+
+#make pdiff
+xpets$"pdiff" <- xpets$Date  - xpets$start_date
